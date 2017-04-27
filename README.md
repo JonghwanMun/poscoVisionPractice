@@ -1,1 +1,5 @@
-This repository is for practice of computer vision lecture 
+This repository is for practice of computer vision lecture <br>
+Download this repository with following line:<br>
+ ```
+    git clone https://github.com/JonghwanMun/poscoVisionPractice.git
+ ```
