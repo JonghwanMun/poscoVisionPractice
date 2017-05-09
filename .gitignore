@@ -5,6 +5,6 @@
 #week_1/solution/004_CNN.ipynb
 
 # data and log and checkpoints
-data/*
-log/*
-checkpoints/*
+*/data/*
+*/logs/*
+*/checkpoints/*
