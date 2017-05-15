@@ -2,6 +2,7 @@ import os
 import h5py
 import json
 import numpy as np
+from PIL import Image
 
 def load_json(json_path):
     with open(json_path, 'r') as f:
