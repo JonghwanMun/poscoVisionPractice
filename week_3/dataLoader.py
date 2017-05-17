@@ -27,8 +27,8 @@ class dataLoader():
 
 		# load feature hdf5
 		if 'prepared_feature' in params.keys():
-			self.prepared_feature = True
-			self.feat_file = h5py.File(params['prepared_feature'], 'r')
+			self.prepared_feature = params['prepared_feature']
+			self.feat_file = h5py.File(params['feature_path'], 'r')
 		else:
 			self.prepared_feature = False
 
@@ -40,7 +40,7 @@ class dataLoader():
 		self.image_ids = json_file['image_ids']
 		self.image_path = json_file['image_path']
 		self.max_caption_length = json_file['max_caption_length']
-		self.dim_image = 4096
+		self.dim_image= 4096
 
 		# set iterator
 		self.iter_idx = 0
