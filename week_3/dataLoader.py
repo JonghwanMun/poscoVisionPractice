@@ -25,6 +25,13 @@ class dataLoader():
 		self.caption_length = h5py_file['/caption_length']
 		#h5py_file.close()
 
+		# load feature hdf5
+		if 'prepared_feature' in params.keys():
+			self.prepared_feature = True
+			self.feat_file = h5py.File(params['prepared_feature'], 'r')
+		else:
+			self.prepared_feature = False
+
 		# load json data
 		json_file = load_json(params['json_path'])
 		self.wtoi = json_file['wtoi']
@@ -33,6 +40,7 @@ class dataLoader():
 		self.image_ids = json_file['image_ids']
 		self.image_path = json_file['image_path']
 		self.max_caption_length = json_file['max_caption_length']
+		self.dim_image = 4096
 
 		# set iterator
 		self.iter_idx = 0
@@ -64,44 +72,53 @@ class dataLoader():
 
     def getBatch(self, batch_size=50):
 
-        batch_caption_length = np.zeros(batch_size, dtype='uint32')
-        batch_caption_labels = np.zeros((batch_size, self.max_caption_length), dtype='uint32')
-        batch_target_labels = np.full((batch_size, self.max_caption_length), self.getWtoi()['<E>'], dtype='uint32')
-        batch_caption_masks = np.zeros((batch_size, self.max_caption_length), dtype='uint32')
-        batch_images = np.zeros((batch_size, 224, 224, 3), dtype='float')
-        batch_image_path = []
-        batch_image_ids = []
+		batch_caption_length = np.zeros(batch_size, dtype='uint32')
+		batch_caption_labels = np.zeros((batch_size, self.max_caption_length), dtype='uint32')
+		batch_target_labels = np.full((batch_size, self.max_caption_length), self.getWtoi()['<E>'], dtype='uint32')
+		batch_caption_masks = np.zeros((batch_size, self.max_caption_length), dtype='uint32')
+		batch_image_path = []
+		batch_image_ids = []
 
-        for bi in range(batch_size):
-            if self.iter_idx == self.num_captions:
-                self.resetIterIndex()
+		if self.prepared_feature:
+			batch_images_feat = np.zeros((batch_size, self.dim_image), dtype='float')
+		else:
+			batch_images = np.zeros((batch_size, 224, 224, 3), dtype='float')
 
-            # load caption label and length
-            cap_length = self.caption_length[self.iter_order[self.iter_idx]]
-            batch_caption_length[bi] = cap_length
-            batch_caption_labels[bi] = self.caption_labels[self.iter_order[self.iter_idx]]
-            batch_target_labels[bi, 0:-1] = self.caption_labels[self.iter_order[self.iter_idx], 1:]
-            batch_caption_masks[bi, :cap_length] = 1
+		for bi in range(batch_size):
+			if self.iter_idx == self.num_captions:
+				self.resetIterIndex()
 
-            # load and preprocessing an image
-            img = Image.open(self.img_dir + self.image_path[self.iter_order[self.iter_idx]]).convert('RGB') #(224,224,3)
-            img = np.array(img, 'f')
-            for i in range(3): img[:,:,i] = img[:,:,i] - self.vgg_mean[i]
-            #img = np.transpose(img, [2,0,1]) # (224,224,3) -> (3,224,224)
-            batch_images[bi] = img
+			# load caption label and length
+			cap_length = self.caption_length[self.iter_order[self.iter_idx]]
+			batch_caption_length[bi] = cap_length
+			batch_caption_labels[bi] = self.caption_labels[self.iter_order[self.iter_idx]]
+			batch_target_labels[bi, 0:-1] = self.caption_labels[self.iter_order[self.iter_idx], 1:]
+			batch_caption_masks[bi, :cap_length] = 1
 
-            # load image id
-            batch_image_ids.append(self.image_ids[self.iter_order[self.iter_idx]])
+			# load and preprocessing an image
+			if self.prepared_feature:
+				batch_images_feat[bi] = self.feat_file[str(self.image_ids[self.iter_order[self.iter_idx]])]
+			else:
+				img = Image.open(self.img_dir + self.image_path[self.iter_order[self.iter_idx]]).convert('RGB') #(224,224,3)
+				img = np.array(img, 'f')
+				for i in range(3): img[:,:,i] = img[:,:,i] - self.vgg_mean[i]
+				#img = np.transpose(img, [2,0,1]) # (224,224,3) -> (3,224,224)
+				batch_images[bi] = img
 
-            # increment iterator
-            self.incrementIterIndex()
+		# load image id
+		batch_image_ids.append(self.image_ids[self.iter_order[self.iter_idx]])
+		# increment iterator
+		self.incrementIterIndex()
 
-        batch = {}
-        batch['caption_labels'] = batch_caption_labels
-        batch['target_labels'] = batch_target_labels
-        batch['caption_length'] = batch_caption_length
-        batch['caption_masks'] = batch_caption_masks
-        batch['images'] = batch_images
-        batch['image_ids'] = batch_image_ids
+		batch = {}
+		batch['caption_labels'] = batch_caption_labels
+		batch['target_labels'] = batch_target_labels
+		batch['caption_length'] = batch_caption_length
+		batch['caption_masks'] = batch_caption_masks
+		batch['image_ids'] = batch_image_ids
+		if self.prepared_feature:
+			batch['images_feat'] = batch_images_feat
+		else:
+			batch['images'] = batch_images
 
-        return batch
+		return batch
