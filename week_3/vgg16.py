@@ -253,7 +253,7 @@ class vgg16:
         # fc6 (i=27), fc7 (i=29), fc8 (i=31)
         for i, k in enumerate(keys):
             if i == len(self.parameters): break
-            print(i, k, weights[k].shape)
+            #print(i, k, weights[k].shape)
             sess.run(self.parameters[i].assign(weights[k]))
 
 '''
