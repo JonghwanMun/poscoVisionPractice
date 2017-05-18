@@ -5,5 +5,9 @@
  * This file is used in test_tf() in model.py
  
  Flickr30k dataset: http://cvlab.postech.ac.kr/~jonghwan/flickr30k.tar.gz
+ 
  Flickr30k dataset image: http://cvlab.postech.ac.kr/~jonghwan/flickr30k_images.tar.gz
  
+ FC7 data: http://cvlab.postech.ac.kr/~deunsol/feats.npy
+ 
+ vgg16 model: http://cvlab.postech.ac.kr/~deunsol/vgg16.tfmodel
