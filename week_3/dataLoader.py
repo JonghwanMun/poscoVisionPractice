@@ -105,8 +105,9 @@ class dataLoader():
 				#img = np.transpose(img, [2,0,1]) # (224,224,3) -> (3,224,224)
 				batch_images[bi] = img
 
-		# load image id
+		# load image id and path
 		batch_image_ids.append(self.image_ids[self.iter_order[self.iter_idx]])
+		batch_image_path.append(self.image_path[self.iter_order[self.iter_idx]])
 		# increment iterator
 		self.incrementIterIndex()
 
@@ -116,6 +117,7 @@ class dataLoader():
 		batch['caption_length'] = batch_caption_length
 		batch['caption_masks'] = batch_caption_masks
 		batch['image_ids'] = batch_image_ids
+		batch['image_path'] = batch_image_path
 		if self.prepared_feature:
 			batch['images_feat'] = batch_images_feat
 		else:

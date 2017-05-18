@@ -11,3 +11,5 @@
 */logs*
 */checkpoints*
 */results*
+*/models*
+*/flickr30k*
