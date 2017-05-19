@@ -11,3 +11,5 @@
  FC7 data: http://cvlab.postech.ac.kr/~deunsol/feats.npy
  
  vgg16 model: http://cvlab.postech.ac.kr/~deunsol/vgg16.tfmodel
+
+ additional data: http://cvlab.postech.ac.kr/~deunsol/data.tar.gz
